@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Romantic FX</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: #000;
+    font-family: "Poppins", sans-serif;
+}
+
+/* CANVAS BACKGROUND */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+/* MAIN */
+.container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
+}
+
+/* TEXT */
+.text {
+    position: absolute;
+    white-space: nowrap;
+    font-weight: 600;
+    opacity: 0;
+    animation: floatUp linear forwards;
+    text-shadow:
+        0 0 10px currentColor,
+        0 0 20px currentColor,
+        0 0 40px currentColor;
+}
+
+/* PHOTO */
+.photo {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 20px;
+    overflow: hidden;
+    opacity: 0;
+    animation: floatPhoto linear forwards;
+    box-shadow:
+        0 0 15px rgba(255,255,255,0.2),
+        0 0 40px rgba(255,255,255,0.1);
+}
+
+.photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ANIMATIONS */
+@keyframes floatUp {
+    0% {
+        transform: translateY(100vh) scale(0.8);
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    100% {
+        transform: translateY(-10vh) scale(1.2);
+        opacity: 0;
+    }
+}
+
+@keyframes floatPhoto {
+    0% {
+        transform: translateY(100vh) scale(0.7);
+        opacity: 0;
+    }
+    15% { opacity: 1; }
+    100% {
+        transform: translateY(-10vh) scale(1);
+        opacity: 0;
+    }
+}
+
+/* BLUR LAYER */
+.blur {
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(25px);
+    z-index: 1;
+}
+
+/* GRAIN */
+.noise {
+    position: fixed;
+    inset: 0;
+    background: url('https://grainy-gradients.vercel.app/noise.svg');
+    opacity: 0.05;
+    z-index: 3;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="container" id="container"></div>
+<div class="blur"></div>
+<div class="noise"></div>
+
+/* AUDIO */
+<audio id="music" autoplay muted loop>
+    <source src="music/tiktok.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    const music = document.getElementById("music");
+    window.onload = () => {
+        music.muted = false;
+
+    }
+</script>
+
+ 
+
+<script>
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+/* COLOR SHIFT BACKGROUND */
+let t = 0;
+
+function drawBG() {
+    t += 0.005;
+
+    const r = Math.floor(80 + 100 * Math.sin(t));
+    const g = Math.floor(80 + 100 * Math.sin(t + 2));
+    const b = Math.floor(80 + 100 * Math.sin(t + 4));
+
+    const gradient = ctx.createRadialGradient(
+        canvas.width/2,
+        canvas.height/2,
+        0,
+        canvas.width/2,
+        canvas.height/2,
+        canvas.width
+    );
+
+    gradient.addColorStop(0, `rgb(${r},${g},${b})`);
+    gradient.addColorStop(1, "#000");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    requestAnimationFrame(drawBG);
+}
+drawBG();
+
+/* TEXT LIST */
+const texts = [
+    "I LOVE YOU",
+    "ONLY YOU",
+    "FOREVER",
+    "MY LOVE",
+    "STAY WITH ME",
+    "ALWAYS",
+    "YOU ARE MINE",
+    "ENDLESS LOVE"
+];
+
+/* PHOTO LIST */
+const photos = [
+    "img/1.jpg",
+    "img/2.jpg",
+    "img/3.jpg",
+    "img/4.jpg",
+    "img/5.jpg"
+];
+
+const container = document.getElementById("container");
+
+/* RANDOM COLOR */
+function randomColor() {
+    const h = Math.floor(Math.random()*360);
+    return `hsl(${h}, 100%, 70%)`;
+}
+
+/* CREATE TEXT */
+function createText() {
+    const el = document.createElement("div");
+    el.className = "text";
+
+    el.innerText = texts[Math.floor(Math.random()*texts.length)];
+
+    el.style.left = Math.random()*100 + "vw";
+    el.style.fontSize = (16 + Math.random()*30) + "px";
+    el.style.color = randomColor();
+    el.style.animationDuration = (8 + Math.random()*6) + "s";
+
+    container.appendChild(el);
+
+    setTimeout(() => el.remove(), 15000);
+}
+
+/* CREATE PHOTO */
+function createPhoto() {
+    const el = document.createElement("div");
+    el.className = "photo";
+
+    el.style.left = Math.random()*100 + "vw";
+    el.style.animationDuration = (10 + Math.random()*6) + "s";
+
+    const img = document.createElement("img");
+    img.src = photos[Math.floor(Math.random()*photos.length)];
+
+    el.appendChild(img);
+    container.appendChild(el);
+
+    setTimeout(() => el.remove(), 16000);
+}
+
+/* LOOP */
+setInterval(createText, 200);
+setInterval(createPhoto, 900);
+
+/* RESIZE FIX */
+window.addEventListener("resize", () => {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+});
+</script>
+
+</body>
+</html>
